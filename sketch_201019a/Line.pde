@@ -9,16 +9,9 @@ class Line {
     }
   
     void draw() {
-        float ex = this.end.x;
-        float sx = this.start.x;
-        float ey = this.end.y;
-        float sy = this.start.y;
         stroke(0);
         strokeWeight(4);
         line(this.start.x, this.start.y, this.end.x, this.end.y);
-
-        noStroke();
-        textSize(50);
     }
 
     PVector intersects_at(Line other) {

@@ -122,33 +122,28 @@ class Pattern{
     }
 
     Node lastNode = path.get(path.size()-1);
-
-    // Agafem les linies que formen la intersecció.
-    Line l1 = lastNode.lines.get(0);
-    Line l2 = lastNode.lines.get(1);
-    Line l3 = lastNode.lines.size()>2 ? lastNode.lines.get(2) : null;
     
-    // Agafem els nodes que estan connectats al node on ens trobem
-    ArrayList<Node> punts_1 = buscaAltresPunts(lastNode, l1);
-    ArrayList<Node> punts_2 = buscaAltresPunts(lastNode, l2);
-    ArrayList<Node> punts_3 = l3 != null ? buscaAltresPunts(lastNode, l3) : null;
-    Node[] punts = new Node[6];
-
-    punts[0] = punts_1.size()>0 ? punts_1.get(0) : null;
-    punts[1] = punts_1.size()>1 ? punts_1.get(1) : null;
-    punts[2] = punts_2.size()>0 ? punts_2.get(0) : null;
-    punts[3] = punts_2.size()>1 ? punts_2.get(1) : null;
-    punts[4] = l3 != null && punts_3.size()>0 ? punts_3.get(0) : null;
-    punts[5] = l3 != null && punts_3.size()>1 ? punts_3.get(1) : null;
-   
-    for(int i=0; i<6; i++){
-      if(punts[i]!=null){ 
+    ArrayList<Line> possibleLines = new ArrayList<Line>();
+    for(Line line : lastNode.lines){
+        possibleLines.add(line);
+    }
+    
+    ArrayList<Node> possibleNodes = new ArrayList<Node>();
+    for(Line line : possibleLines){
+      ArrayList<Node> lineNodes = buscaAltresPunts(lastNode, line);
+      for(Node lineNode : lineNodes){
+        possibleNodes.add(lineNode);  
+      }
+    }
+    
+    for(Node node : possibleNodes){
+      if(node!=null){ 
 
         ArrayList<Node> newPath = new ArrayList<Node>();
         for(int j=0; j<path.size(); j++){
           newPath.add(path.get(j));
         }
-        newPath.add(punts[i]);  
+        newPath.add(node);  
         
         if(newPath.get(0)==newPath.get(newPath.size()-1)){
           if(newPath.size()>3){
@@ -171,15 +166,8 @@ class Pattern{
     }
 
     for(int i = 0; i<path.size(); i++){
-      
-      repeticions[posicioLinia(path.get(i).lines.get(0))]++;
-      repeticions[posicioLinia(path.get(i).lines.get(1))]++;
-      
-      if(path.get(i).lines.size()>2 ){
-        int position = posicioLinia(path.get(i).lines.get(2));
-        if(position>=0){
-          repeticions[posicioLinia(path.get(i).lines.get(2))]++;
-        }
+      for(Line line : path.get(i).lines){
+        repeticions[posicioLinia(line)]++;
       }
     }
 
@@ -241,20 +229,15 @@ class Pattern{
     ArrayList<Node> altres_punts = new ArrayList<Node>();
     for(int i = 0; i<intersections.size(); i++){
       
-      if(intersections.get(i)!=node && (intersections.get(i).lines.get(0) == linia || intersections.get(i).lines.get(1) == linia || (intersections.get(i).lines.size()> 2 && intersections.get(i).lines.get(2)==linia))){
-        altres_punts.add(intersections.get(i));
-      }
-      
-      /*
       if(intersections.get(i)!=node){
-        boolean isFromSameLine = true;
+        boolean sharesALine = false;
         for(int j=0; j<intersections.get(i).lines.size(); j++){
           if(intersections.get(i).lines.get(j) == linia){
-            isFromSameLine = false;
+            sharesALine = true;
           }
         }
-        if(isFromSameLine) altres_punts.add(intersections.get(i));
-      }*/
+        if(sharesALine) altres_punts.add(intersections.get(i));
+      }
       
     }
 

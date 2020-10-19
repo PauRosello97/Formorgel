@@ -15,10 +15,10 @@ class Node implements Comparable{
     }
 
     void uneix(Node node) {
-      if(node.lines.get(0)!=this.lines.get(0)&&node.lines.get(0)!=this.lines.get(1)){
-        this.lines.add(node.lines.get(0));
-      }else if(node.lines.get(1)!=this.lines.get(0)&&node.lines.get(1)!=this.lines.get(1)){
-        this.lines.add(node.lines.get(1));
+      for(Line line : node.lines){
+        if(!this.lines.contains(line)){
+          this.lines.add(line);
+        }
       }
     }
     
