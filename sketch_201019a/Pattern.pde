@@ -20,7 +20,8 @@ class Pattern{
   }
   
   void addPattern(ArrayList<JSONObject> jsons){
-    float k = width/120.0;
+    float k = 840/120.0;
+    //k = 1;
 
     for(JSONObject json : jsons){
       JSONArray jsonLines = json.getJSONArray("lines");
@@ -63,14 +64,17 @@ class Pattern{
     
     Collections.sort(intersections);
     // Unim interseccions iguals.
-    // Funciona perquè l'array està ordenat i les iguals estaràn juntes.
-    for(int i = 0; i<intersections.size()-1; i++){
-      if(abs(intersections.get(i).pos.x-intersections.get(i+1).pos.x)<0.0001 && abs(intersections.get(i).pos.y-intersections.get(i+1).pos.y)<0.0001){
-        intersections.get(i+1).uneix(intersections.get(i));
-        intersections.remove(i);
-        i--;
+    for(int i = 0; i<intersections.size(); i++){
+      for(int j = 0; j<intersections.size(); j++){
+        if(i!=j && sonElMateix(intersections.get(i), intersections.get(j))){
+          intersections.get(j).uneix(intersections.get(i));
+          intersections.remove(i);
+          i = i==0 ? 0 : i-1;
+        }
       }
     }
+
+
   }
   
   void generatePolygons(){
@@ -85,6 +89,7 @@ class Pattern{
     //Eliminem els poligons que continguin altres poligons
     Collections.sort(polygons);
     
+    /*
     for(int i = 0; i<polygons.size(); i++){
       for(int j=i+1; j<polygons.size(); j++){
         if(nodesEnComu(polygons.get(i), polygons.get(j))>2){
@@ -93,10 +98,7 @@ class Pattern{
           j=polygons.size();
         }
       }
-    }
-
-    //--------- ORDENEM ELS POLÍGONS
-    //polygon.sort(function(a, b){return b.calculaArea() - a.calculaArea()});  
+    }*/
 
     //--------- ELIMINEM POLÍGONS QUE CONTINGUIN PUNTS
     
@@ -144,19 +146,25 @@ class Pattern{
         newPath.add(possibleNode);  
         
         if(newPath.get(0)==newPath.get(newPath.size()-1)){
-          if(newPath.size()>3){
+          if(newPath.size()>3 && !liniaRepetida(newPath)){
             afegeixPolygon(newPath);
           }
         }else if(!liniaRepetida(newPath)){
           followPath(newPath);
-          
         }
       }
     }
   } 
 
   boolean liniaRepetida(ArrayList<Node> path){
-    
+    // TREBALLEM AMB LES LÍNIES
+    int[] liniesInPath = new int[path.size()-1];
+
+    for(int i=0; i<path.size()-1; i++){
+      liniesInPath[i] = posicioLinia(findLineInCommon(path.get(i), path.get(i+1)));
+    }
+
+    //TREBALLEM AMB ELS NODES
     int[] repetitions = new int[lines.size()];
 
     for(int repetition : repetitions){
@@ -169,10 +177,38 @@ class Pattern{
       }
     }
 
+    int count = 0;
     for(int repetition : repetitions){
-      if(repetition>2) return true;
+      if(repetition>2) count++;
     }
-    return false;
+
+    for(int i=0; i<repetitions.length; i++){
+      if(repetitions[i]>1){
+        // SI una línia està repetida, mirem si s'ha recorregut
+        boolean inPath = false;
+        for(int j=0; j<liniesInPath.length; j++){
+          if(liniesInPath[j] == i) inPath = true;
+        }
+        for(int j=0; j<path.get(path.size()-1).lines.size(); j++){
+          if(posicioLinia(path.get(path.size()-1).lines.get(j)) == i) inPath = true;
+        }
+        if(!inPath){
+          return true;
+        }
+      }
+    }
+
+    return count>2;
+
+  }
+
+  Line findLineInCommon(Node nodeA, Node nodeB){
+    for(Line lineA : nodeA.lines){
+      for(Line lineB : nodeB.lines){
+        if(lineA==lineB) return lineA;
+      }
+    }
+    return null;
   }
   
   void afegeixPolygon(ArrayList<Node> path){
@@ -183,13 +219,17 @@ class Pattern{
   }
   
   boolean sonElMateix(Node punt1, Node punt2){
-    boolean son_el_mateix = true;
-    if(abs(punt1.pos.x-punt2.pos.x)>0.0000001){
-      son_el_mateix=false;
-    }else if(abs(punt1.pos.y-punt2.pos.y)>0.0000001){
-      son_el_mateix=false;
+    /*
+    boolean areTheSame = true;
+    float distance = 0.01;
+    if(abs(punt1.pos.x-punt2.pos.x)>distance){
+      areTheSame=false;
+    }else if(abs(punt1.pos.y-punt2.pos.y)>distance){
+      areTheSame=false;
     }
-    return son_el_mateix;
+    return areTheSame;
+    */
+    return punt1.pos.x==punt2.pos.x && punt1.pos.y==punt2.pos.y;
   }
   
   ArrayList<Node> buscaAltresPunts(Node node, Line linia){

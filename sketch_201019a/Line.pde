@@ -9,9 +9,9 @@ class Line {
     }
   
     void draw() {
-        stroke(0);
-        strokeWeight(4);
-        line(this.start.x, this.start.y, this.end.x, this.end.y);
+      stroke(0);
+      strokeWeight(4);
+      line(this.start.x, this.start.y, this.end.x, this.end.y);
     }
 
     PVector intersects_at(Line other) {

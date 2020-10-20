@@ -13,7 +13,11 @@ class Node implements Comparable{
       fill(0);
       ellipse(this.pos.x, this.pos.y, 20, 20);
 
-      text(this.lines.size(), this.pos.x+20, this.pos.y);
+      /*
+      text(this.lines.size(), this.pos.x+20, this.pos.y+20);
+      text(this.lines.size(), this.pos.x+20, this.pos.y-20);
+      text(this.lines.size(), this.pos.x-60, this.pos.y+80);
+      text(this.lines.size(), this.pos.x-20, this.pos.y-20);*/
     }
 
     void uneix(Node node) {
