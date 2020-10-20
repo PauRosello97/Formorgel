@@ -1,7 +1,7 @@
 class Pattern{
-  ArrayList<Line> linies = new ArrayList<Line>();
+  ArrayList<Line> lines = new ArrayList<Line>();
   ArrayList<Node> intersections = new ArrayList<Node>();
-  ArrayList<Polygon> polygon = new ArrayList<Polygon>();
+  ArrayList<Polygon> polygons = new ArrayList<Polygon>();
   
   Pattern(ArrayList<JSONObject> jsonPatterns){
     addPattern(jsonPatterns);
@@ -12,24 +12,21 @@ class Pattern{
   void draw(){
 
     noStroke();
-    for(int i = 0; i<polygon.size(); i++){ polygon.get(i).draw(); }
-    
-    for(int i = 0; i<intersections.size(); i++){
-      intersections.get(i).draw();
-    }
-    
+    for(Polygon polygon : polygons){ polygon.draw(); }
+    for(Node intersection : intersections){ intersection.draw(); }
     strokeWeight(1);
-    for(int i = 0; i<linies.size(); i++){ linies.get(i).draw();  }
+    for(Line line : lines){ line.draw();  }
 
   }
   
   void addPattern(ArrayList<JSONObject> jsons){
     float k = width/120.0;
 
-    for(int j=0; j<jsons.size(); j++){
-      JSONArray jsonLines = jsons.get(j).getJSONArray("lines");
+    for(JSONObject json : jsons){
+      JSONArray jsonLines = json.getJSONArray("lines");
 
       for(int i=0; i<jsonLines.size(); i++){
+        
           JSONObject jsonLine = jsonLines.getJSONObject(i);
           JSONArray jsonStart = jsonLine.getJSONArray("start");
           JSONArray jsonEnd = jsonLine.getJSONArray("end");
@@ -37,7 +34,7 @@ class Pattern{
           int[] start = jsonStart.getIntArray();
           int[] end = jsonEnd.getIntArray();
 
-          linies.add(new Line(new PVector(k*start[0], k*start[1]), new PVector(k*end[0], k*end[1])));
+          lines.add(new Line(new PVector(k*start[0], k*start[1]), new PVector(k*end[0], k*end[1])));
       }
     }
   }
@@ -45,12 +42,12 @@ class Pattern{
   void findintersections(){
     intersections = new ArrayList<Node>();
     //Afegim totes les interseccions a l'array.
-    for(int i = 0; i<linies.size(); i++){
-      for(int j=i+1; j<linies.size(); j++){
-        if(linies.get(i).intersects_at(linies.get(j))!=null){
+    for(int i = 0; i<lines.size(); i++){
+      for(int j=i+1; j<lines.size(); j++){
+        if(lines.get(i).intersects_at(lines.get(j))!=null){
           
-          PVector intersection = linies.get(i).intersects_at(linies.get(j));
-          Line[] intersectionLines = {linies.get(i), linies.get(j)};
+          PVector intersection = lines.get(i).intersects_at(lines.get(j));
+          Line[] intersectionLines = {lines.get(i), lines.get(j)};
           intersections.add(new Node(intersection.x, intersection.y, intersectionLines) );
         }
       }
@@ -77,23 +74,23 @@ class Pattern{
   }
   
   void generatePolygons(){
-    polygon = new ArrayList<Polygon>();
+    polygons = new ArrayList<Polygon>();
     
-    for(int i = 0; i<intersections.size(); i++){
+    for(Node intersection : intersections){
       ArrayList<Node> oldPath = new ArrayList<Node>();
-      oldPath.add(intersections.get(i));
+      oldPath.add(intersection);
       followPath(oldPath);
     }
 
     //Eliminem els poligons que continguin altres poligons
-    Collections.sort(polygon);
+    Collections.sort(polygons);
     
-    for(int i = 0; i<polygon.size(); i++){
-      for(int j=i+1; j<polygon.size(); j++){
-        if(nodesEnComu(polygon.get(i), polygon.get(j))>2){
-          polygon.remove(i);
+    for(int i = 0; i<polygons.size(); i++){
+      for(int j=i+1; j<polygons.size(); j++){
+        if(nodesEnComu(polygons.get(i), polygons.get(j))>2){
+          polygons.remove(i);
           i--;
-          j=polygon.size();
+          j=polygons.size();
         }
       }
     }
@@ -103,11 +100,11 @@ class Pattern{
 
     //--------- ELIMINEM POLÍGONS QUE CONTINGUIN PUNTS
     
-    for(int i = 0; i<polygon.size(); i++){
+    for(int i = 0; i<polygons.size(); i++){
       for(int j=0; j<intersections.size(); j++){
-        if(nodeDinsPoli(intersections.get(j), polygon.get(i))){
+        if(nodeDinsPoli(intersections.get(j), polygons.get(i))){
           
-          polygon.remove(i);
+          polygons.remove(i);
           i--;
           j=intersections.size();
         }
@@ -117,8 +114,9 @@ class Pattern{
   
   void followPath(ArrayList<Node> oldPath){
     ArrayList<Node> path = new ArrayList<Node>();
-    for(int i=0; i<oldPath.size(); i++){
-      path.add(oldPath.get(i));
+    
+    for(Node node : oldPath){
+      path.add(node);
     }
 
     Node lastNode = path.get(path.size()-1);
@@ -136,14 +134,14 @@ class Pattern{
       }
     }
     
-    for(Node node : possibleNodes){
-      if(node!=null){ 
+    for(Node possibleNode : possibleNodes){
+      if(possibleNode!=null){ 
 
         ArrayList<Node> newPath = new ArrayList<Node>();
-        for(int j=0; j<path.size(); j++){
-          newPath.add(path.get(j));
+        for(Node node : path){
+          newPath.add(node);
         }
-        newPath.add(node);  
+        newPath.add(possibleNode);  
         
         if(newPath.get(0)==newPath.get(newPath.size()-1)){
           if(newPath.size()>3){
@@ -159,59 +157,29 @@ class Pattern{
 
   boolean liniaRepetida(ArrayList<Node> path){
     
-    int[] repeticions = new int[linies.size()];
+    int[] repetitions = new int[lines.size()];
 
-    for(int i = 0; i<linies.size(); i++){
-      repeticions[i] = 0;
+    for(int repetition : repetitions){
+      repetition = 0;
     }
 
     for(int i = 0; i<path.size(); i++){
       for(Line line : path.get(i).lines){
-        repeticions[posicioLinia(line)]++;
+        repetitions[posicioLinia(line)]++;
       }
     }
 
-    boolean massa_repeticions = false;
-
-    for(int i = 0; i<repeticions.length; i++){
-      
-      if(repeticions[i]>2){
-        massa_repeticions = true;
-      }
-      
+    for(int repetition : repetitions){
+      if(repetition>2) return true;
     }
-
-    return massa_repeticions;
+    return false;
   }
   
   void afegeixPolygon(ArrayList<Node> path){
     Polygon newPoly = new Polygon(path);
     newPoly.ordenaPath();
-    polygon.add(newPoly);
-    polygon.get(polygon.size()-1).ordenaPath();
-  }
-
-  String nodeArrayToString(Node[] array){
-    String message = "";
-    for(int i=0; i<array.length; i++){
-      message += nodeToString(array[i]);
-    }
-    return message;
-  }
-  
-  void printPath(ArrayList<Node> path){
-    String message = "";
-    for(int i=0; i<path.size(); i++){
-      message += nodeToString(path.get(i));
-    }
-    println(message);
-  }
-
-  String nodeToString(Node node){
-    if(node!=null){
-      return "[" + node.pos.x + ", " + node.pos.y + "]";
-    }
-    return "[null]";
+    polygons.add(newPoly);
+    polygons.get(polygons.size()-1).ordenaPath();
   }
   
   boolean sonElMateix(Node punt1, Node punt2){
@@ -281,8 +249,8 @@ class Pattern{
   }
 
   int posicioLinia(Line linia){
-    for(int i = 0; i<linies.size(); i++){
-      if(linies.get(i)==linia){
+    for(int i = 0; i<lines.size(); i++){
+      if(lines.get(i)==linia){
         return i;
       }
     }
@@ -292,25 +260,25 @@ class Pattern{
   boolean jaExisteix(Polygon pol){
     boolean ja_existeix = false;
     //Recorrem tots els polígons
-    for(int i = 0; i<polygon.size(); i++){
+    for(int i = 0; i<polygons.size(); i++){
       //Comencem considerant que si que existeix.
       boolean es_igual_1 = true;
       boolean es_igual_2 = true;
       
-      int l = polygon.get(i).path.size();
+      int l = polygons.get(i).path.size();
       
       //Mirem si els dos polígons tenen el mateix nombre de nodes.
       if(l==pol.path.size()){
         //Recorrem cada posició del polígon i.
         for(int j=0; j<l; j++){
-          if(pol.path.get(j).pos!=polygon.get(i).path.get(j).pos){
+          if(pol.path.get(j).pos!=polygons.get(i).path.get(j).pos){
             es_igual_1 = false;
           }
-          if(pol.path.get(0).pos!=polygon.get(i).path.get(0).pos){
+          if(pol.path.get(0).pos!=polygons.get(i).path.get(0).pos){
             es_igual_2 = false;
           }
           if(j!=0){
-            if(pol.path.get(j).pos!=polygon.get(i).path.get(l-j).pos){
+            if(pol.path.get(j).pos!=polygons.get(i).path.get(l-j).pos){
               es_igual_2 = false;
             }
           }

@@ -3,7 +3,7 @@ class Polygon implements Comparable{
   ArrayList<Node> path;
   
     Polygon(ArrayList<Node> path){
-      this.col = color(random(360), 100, 100);
+      this.col = color(random(360), random(25,100), random(25,70));
       this.path = path;
       if(this.path.get(0)==this.path.get(this.path.size()-1)){
         this.path.remove(this.path.size()-1);
@@ -27,12 +27,12 @@ class Polygon implements Comparable{
       PVector v_origen = new PVector(0,0);
 
       for(int i=0; i<this.path.size(); i++){
-           PVector v_i = new PVector(this.path.get(i).pos.x, this.path.get(i).pos.y);
-           float dist_i = v_origen.dist(v_i);
-           if(dist_i<dist){
-              node_inical = i;
-              dist = dist_i;
-           }
+        PVector v_i = new PVector(this.path.get(i).pos.x, this.path.get(i).pos.y);
+        float dist_i = v_origen.dist(v_i);
+        if(dist_i<dist){
+          node_inical = i;
+          dist = dist_i;
+        }
       }
 
       // Ara que ja sabem per quin node ha de començar, podem reordenar l'array path
@@ -79,9 +79,5 @@ class Polygon implements Comparable{
         acumulat -= this.path.get(i).pos.y*this.path.get((i+1)%this.path.size()).pos.x*0.5;
       }
       return abs(acumulat);
-    }
-    
-    void setColor(){
-      this.col = color(random(360), 100, 100);
     }
 }
