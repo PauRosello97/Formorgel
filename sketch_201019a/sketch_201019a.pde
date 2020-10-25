@@ -1,17 +1,13 @@
 import java.util.*;
 
 int N_LINIES = 20;
-
-float lines_radius = 200;
+int shapeDisplaying = 0; 
 
 JSONObject pattern001, pattern002, pattern003, pattern004, pattern005, pattern006, pattern007;
-
 Pattern pattern;
 
 void setup(){
   size(1200, 840);
-  
-  colorMode(HSB, 360, 100, 100);
 
   pattern001 = loadJSONObject("patterns/001_frame.json");
   pattern002 = loadJSONObject("patterns/002_cross.json");
@@ -27,12 +23,16 @@ void setup(){
   patterns.add(pattern004);
   patterns.add(pattern005);
   pattern = new Pattern(patterns);
-
-  background(0, 0, 100);
+  
+  background(255);
   pattern.draw();
+  
+  
+  
 }
   
 void draw(){
+  
   
 }
 
@@ -75,10 +75,23 @@ String nodeToString(Node node){
   return "[null]";
 }
 
+String vectorToString(PVector vector){
+  if(vector!=null){
+    return "[" + vector.x + ", " + vector.y + "]";
+  }
+  return "[null]";
+}
+
 String arrayToString(int[] array){
   String message = "";
   for(int item : array){
     message += item + ", ";
   }
   return message;
+}
+
+void keyPressed(){
+  shapeDisplaying++;
+  if(shapeDisplaying==pattern.polygons.size()) shapeDisplaying=0;
+  println(shapeDisplaying);
 }

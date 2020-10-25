@@ -1,16 +1,18 @@
 class Line {
   PVector start, end;
   float m, n;
-    Line(PVector start, PVector end) {
+  int id;
+    Line(PVector start, PVector end, int id) {
       this.start = start;
         this.end   = end;
         this.m = ((this.start.y-this.end.y)/(this.start.x-this.end.x));
         this.n = (this.start.y-this.m*this.start.x);
+        this.id = id;
     }
   
     void draw() {
       stroke(0);
-      strokeWeight(4);
+      strokeWeight(2);
       line(this.start.x, this.start.y, this.end.x, this.end.y);
     }
 
@@ -60,10 +62,18 @@ class Line {
     return new PVector(x1+t*bx, y1+t*by);
   }
 
-    void allarga(){
-      this.start.x = 0;
-      this.start.y = this.n;
-      this.end.x = width;
-      this.end.y = this.m*this.end.x+this.n;
-    }
+  void allarga(){
+    this.start.x = 0;
+    this.start.y = this.n;
+    this.end.x = width;
+    this.end.y = this.m*this.end.x+this.n;
   }
+  
+  boolean isOutside(float radius){
+    float avgX = (start.x + end.x)/2;
+    float avgY = (start.y + end.y)/2;
+    
+    if(avgX<-radius*2 || avgX>width+radius*2 || avgY<-radius*2 || avgY>height+radius*2) return true;
+    return false;
+  }
+}

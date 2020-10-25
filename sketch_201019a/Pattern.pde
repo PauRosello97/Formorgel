@@ -2,21 +2,40 @@ class Pattern{
   ArrayList<Line> lines = new ArrayList<Line>();
   ArrayList<Node> intersections = new ArrayList<Node>();
   ArrayList<Polygon> polygons = new ArrayList<Polygon>();
+  Formorgel formorgel;
+  
+  float radius = 200;
   
   Pattern(ArrayList<JSONObject> jsonPatterns){
-    addPattern(jsonPatterns);
+    //addPattern(jsonPatterns);
+    formorgel = new Formorgel(radius);
+    generateLines();
     findintersections();
     generatePolygons();
+    println("nIntersections: " + intersections.size());
+    println("nPolygons: " + polygons.size());
   }
   
   void draw(){
-
     noStroke();
+    //polygons.get(shapeDisplaying).draw();
     for(Polygon polygon : polygons){ polygon.draw(); }
-    for(Node intersection : intersections){ intersection.draw(); }
+    //polygons.get(shapeDisplaying).draw();
+    //for(Node intersection : intersections){ intersection.draw(); }
     strokeWeight(1);
-    for(Line line : lines){ line.draw();  }
-
+    //for(Line line : lines){ line.draw();  }
+  }
+  
+  void generateLines(){
+    lines = formorgel.generateLines(3);
+    
+    for(int i=0; i<lines.size(); i++){
+      if(lines.get(i).isOutside(radius)){
+        lines.remove(i);
+        i = i==0 ? 0 : i-1;
+      }
+    }
+    
   }
   
   void addPattern(ArrayList<JSONObject> jsons){
@@ -35,7 +54,7 @@ class Pattern{
           int[] start = jsonStart.getIntArray();
           int[] end = jsonEnd.getIntArray();
 
-          lines.add(new Line(new PVector(k*start[0], k*start[1]), new PVector(k*end[0], k*end[1])));
+          lines.add(new Line(new PVector(k*start[0], k*start[1]), new PVector(k*end[0], k*end[1]), lines.size()));
       }
     }
   }
@@ -56,7 +75,7 @@ class Pattern{
 
     //Eliminem les interseccions que estan a fora
     for(int i = 0; i<intersections.size(); i++){
-      if(intersections.get(i).pos.x<0 || intersections.get(i).pos.x>width || intersections.get(i).pos.y<0 || intersections.get(i).pos.y>height ){
+      if(intersections.get(i).pos.x<-radius*2 || intersections.get(i).pos.x>width+radius*2 || intersections.get(i).pos.y<-radius*2 || intersections.get(i).pos.y>height+radius*2 ){
         intersections.remove(i);
         i--;
       }
@@ -86,22 +105,39 @@ class Pattern{
       followPath(oldPath);
     }
 
-    //Eliminem els poligons que continguin altres poligons
+    //Sort polygons
     Collections.sort(polygons);
     
-    /*
-    for(int i = 0; i<polygons.size(); i++){
-      for(int j=i+1; j<polygons.size(); j++){
-        if(nodesEnComu(polygons.get(i), polygons.get(j))>2){
+    // Remove polygons with repeated nodes.
+    for(int i=0; i<polygons.size(); i++){
+      if(polygons.get(i).hasRepeatedNodes()){
+        polygons.remove(polygons.get(i));
+        i = i==0 ? 0 : i-1;
+      }
+    }
+    
+    // Remove polygons outside the canvas.
+    for(int i=0; i<polygons.size(); i++){
+      if(polygons.get(i).isOutside(radius)){
+        println("outside");
+        polygons.remove(i);
+        i = i==0 ? 0 : i-1;
+      }
+    }
+    
+    
+    //Remove repeated polygons
+    for(int i=0; i<polygons.size(); i++){
+      for(int j=0; j<polygons.size(); j++){
+        if(i!=j && polygons.get(i).equals(polygons.get(j))){
           polygons.remove(i);
           i--;
           j=polygons.size();
         }
       }
-    }*/
-
-    //--------- ELIMINEM POLÍGONS QUE CONTINGUIN PUNTS
+    }
     
+    //Remove polygons containing nodes
     for(int i = 0; i<polygons.size(); i++){
       for(int j=0; j<intersections.size(); j++){
         if(nodeDinsPoli(intersections.get(j), polygons.get(i))){
@@ -219,7 +255,6 @@ class Pattern{
   }
   
   boolean sonElMateix(Node punt1, Node punt2){
-    /*
     boolean areTheSame = true;
     float distance = 0.01;
     if(abs(punt1.pos.x-punt2.pos.x)>distance){
@@ -228,8 +263,6 @@ class Pattern{
       areTheSame=false;
     }
     return areTheSame;
-    */
-    return punt1.pos.x==punt2.pos.x && punt1.pos.y==punt2.pos.y;
   }
   
   ArrayList<Node> buscaAltresPunts(Node node, Line linia){
@@ -388,4 +421,5 @@ class Pattern{
       return checkcheck(node.pos.x, node.pos.y, cornersX, cornersY);
     }  
   }
+  
 }
