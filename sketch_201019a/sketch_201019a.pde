@@ -26,9 +26,6 @@ void setup(){
   
   background(255);
   pattern.draw();
-  
-  
-  
 }
   
 void draw(){
