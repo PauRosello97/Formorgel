@@ -2,6 +2,7 @@ class Line {
   PVector start, end;
   float m, n;
   int id;
+    
     Line(PVector start, PVector end, int id) {
       this.start = start;
         this.end   = end;

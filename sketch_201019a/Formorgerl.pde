@@ -8,7 +8,8 @@ class Formorgel{
   }
   
   ArrayList<Line> generateLines(int d){
-    generateSixthLevelPack(width/2, height/2, d);
+    //generateSixthLevelPack(width/2, height/2, d);
+    generateOnePack(width/2, height/2, d);
     return this.lines;
   }
   
@@ -20,7 +21,6 @@ class Formorgel{
       offsetX = radius*sqrt(2)/2;
       offsetY = radius*sqrt(2)/2;
     }
-    
     generateFifthLevelPack(x+offsetX, y+offsetY, d);
   }
   
@@ -31,13 +31,8 @@ class Formorgel{
     
     for(int i=0; i<rep; i++){
       float angle = radians(extraR+i*360/rep);
-      generateFourthLevelPack(
-        x+rotationRadius*cos(angle), 
-        y+rotationRadius*sin(angle), 
-        d
-      );
+      generateFourthLevelPack(x+rotationRadius*cos(angle), y+rotationRadius*sin(angle), d);
     }
-    
   }
   
   void generateFourthLevelPack(float x, float y, float d){
@@ -47,11 +42,7 @@ class Formorgel{
     
     for(int i=0; i<rep; i++){
       float angle = radians(extraR+i*360/rep);
-      generateThirdLevelPack(
-        x+rotationRadius*sin(angle), 
-        y+rotationRadius*cos(angle), 
-        d
-      );
+      generateThirdLevelPack(x+rotationRadius*sin(angle), y+rotationRadius*cos(angle), d);
     }
   }
   
@@ -62,11 +53,7 @@ class Formorgel{
     
     for(int i=0; i<rep; i++){
       float angle = radians(extraR+i*360/rep);
-      generateSecondLevelPack(
-        x-rotationRadius*cos(angle),
-        y-rotationRadius*sin(angle),
-        d
-      );
+      generateSecondLevelPack(x-rotationRadius*cos(angle), y-rotationRadius*sin(angle), d);
     }
   }
   
@@ -77,11 +64,7 @@ class Formorgel{
     
     for(int i=0; i<rep; i++){
       float angle = radians(extraR+i*360/rep);
-      generateOnePack(
-        x+rotationRadius*sin(angle),
-        y+rotationRadius*cos(angle), 
-        d
-      );
+      generateOnePack(x+rotationRadius*sin(angle), y+rotationRadius*cos(angle), d);
     }
   }
   
@@ -94,28 +77,11 @@ class Formorgel{
     
     for(int i=0; i<rep; i++){
       float angle = i*polygonVertexAngle+90;
-      drawOneShape(
-        x+rotationRadius*cos(radians(angle+extraR)),
-        y+rotationRadius*sin(radians(angle+extraR)), 
-        d, angle
-      );
+      drawOneShape(x+rotationRadius*cos(radians(angle+extraR)), y+rotationRadius*sin(radians(angle+extraR)), d, angle);
     }
   }
     
   void drawOneShape(float x, float y, float d, float r){
-    noFill();   
-    
-    /*
-    beginShape();
-    r+= d==4 ? 45 : 0;
-    for(int i=0; i<d; i++){
-      float angle = r+i*360/d-90;
-      vertex(x+radius*cos(radians(angle)), y+radius*sin(radians(angle)));
-    }
-    endShape(CLOSE);*/
-    
-    // Linies
-    stroke(0);
     for(int i=0; i<d; i++){
       float angle = r+i*360/d-90;
       float augRadius = radius+0.0001;
