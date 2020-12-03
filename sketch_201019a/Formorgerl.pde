@@ -8,8 +8,8 @@ class Formorgel{
   }
   
   ArrayList<Line> generateLines(int d){
-    //generateSixthLevelPack(width/2, height/2, d);
-    generateOnePack(width/2, height/2, d);
+    generateSixthLevelPack(width/2, height/2, d);
+    //generateOnePack(width/2, height/2, d);
     return this.lines;
   }
   

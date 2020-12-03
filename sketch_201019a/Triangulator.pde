@@ -130,6 +130,8 @@ class Triangulator
      vertex list. The supertriangle is the first triangle in
      the triangle list.
      */
+     
+     println(xmid-two_dmax, ymid-dmax, xmid, ymid+two_dmax, xmid+two_dmax, ymid-dmax);
     Triangle superTriangle = new Triangle(xmid-two_dmax, ymid-dmax, xmid, ymid+two_dmax, xmid+two_dmax, ymid-dmax);
     triangles.add(superTriangle);
 
