@@ -10,14 +10,13 @@ class Triangulator
 
   class Edge
   {
-    PVector p1, p2;
-
+    Node p1, p2;
 
     Edge() { 
       p1 = p2 = null;
     }
 
-    Edge(PVector p1, PVector p2)
+    Edge(Node p1, Node p2)
     {
       this.p1 = p1;
       this.p2 = p2;
@@ -30,20 +29,20 @@ class Triangulator
       t1.p3 == t2.p1 || t1.p3 == t2.p2 || t1.p3 == t2.p3;
   }
 
-  void sortXList(ArrayList<PVector> ps)
+  void sortXList(ArrayList<Node> ps)
   {
     int l = ps.size();
     PVector p1, p2, pi;
     int r;
     for (int i = 0; i < l-1; i ++)
     {
-      pi = ps.get(i);
+      pi = ps.get(i).pos;
       p1 = pi.get();
       p2 = pi.get();
       r = i;
       for (int j = i+1; j < l; j++)
       {
-        p1 = ps.get(j);        
+        p1 = ps.get(j).pos;        
         if (p1.x < p2.x)
         {
           p2 = p1.get();
@@ -52,7 +51,7 @@ class Triangulator
       }        
       if (r != i)
       {
-        PVector tmpv = ps.get(r);
+        Node tmpv = ps.get(r);
         ps.set(r, ps.get(i));
         ps.set(i, tmpv);
       }
@@ -93,24 +92,23 @@ class Triangulator
    Returned is a list of triangular faces in the ArrayList triangles
    These triangles are arranged in a consistent clockwise order.
    */
-  void triangulate(ArrayList<PVector> pxyz, ArrayList<Triangle> triangles)
+  void triangulate(ArrayList<Node> pxyz, ArrayList<Triangle> triangles)
   {
-    println("hi");
     // sort vertex array in increasing x values
     sortXList(pxyz);
 
     // Find the maximum and minimum vertex bounds. This is to allow calculation of the bounding triangle
     float
-      xmin = pxyz.get(0).x, 
-      ymin = pxyz.get(0).y, 
+      xmin = pxyz.get(0).pos.x, 
+      ymin = pxyz.get(0).pos.y, 
       xmax = xmin, 
       ymax = ymin;
 
-    for (PVector p : pxyz) {
-      if (p.x < xmin) xmin = p.x;
-      else if (p.x > xmax) xmax = p.x;
-      if (p.y < ymin) ymin = p.y;
-      else if (p.y > ymax) ymax = p.y;
+    for (Node p : pxyz) {
+      if (p.pos.x < xmin) xmin = p.pos.x;
+      else if (p.pos.x > xmax) xmax = p.pos.x;
+      if (p.pos.y < ymin) ymin = p.pos.y;
+      else if (p.pos.y > ymax) ymax = p.pos.y;
     }
 
     float
@@ -131,8 +129,7 @@ class Triangulator
      the triangle list.
      */
      
-     println(xmid-two_dmax, ymid-dmax, xmid, ymid+two_dmax, xmid+two_dmax, ymid-dmax);
-    Triangle superTriangle = new Triangle(xmid-two_dmax, ymid-dmax, xmid, ymid+two_dmax, xmid+two_dmax, ymid-dmax);
+    Triangle superTriangle = new Triangle(new Node(xmid-two_dmax, ymid-dmax), new Node(xmid, ymid+two_dmax), new Node(xmid+two_dmax, ymid-dmax));
     triangles.add(superTriangle);
 
     //Include each point one at a time into the existing mesh
@@ -141,7 +138,7 @@ class Triangulator
     PVector circle;
     boolean inside;
 
-    for (PVector p : pxyz) {
+    for (Node p : pxyz) {
       edges.clear();
 
       //Set up the edge buffer. If the point (xp,yp) lies inside the circumcircle then the three edges of that triangle are added to the edge buffer and that triangle is removed.
@@ -152,9 +149,9 @@ class Triangulator
         Triangle t = triangles.get(j);
         if (complete.contains(t)) continue;
 
-        inside = CircumCircle.circumCircle(p, t, circle);
+        inside = CircumCircle.circumCircle(p.pos, t, circle);
 
-        if (circle.x+circle.z < p.x) complete.add(t);
+        if (circle.x+circle.z < p.pos.x) complete.add(t);
         if (inside)
         {
           edges.add(new Edge(t.p1, t.p2));

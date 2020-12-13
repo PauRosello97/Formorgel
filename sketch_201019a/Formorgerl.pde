@@ -8,7 +8,7 @@ class Formorgel{
   }
   
   ArrayList<Line> generateLines(int d){
-    generateSixthLevelPack(width/2, height/2, d);
+    generateThirdLevelPack(width/2, height/2, d);
     //generateOnePack(width/2, height/2, d);
     return this.lines;
   }
@@ -82,9 +82,11 @@ class Formorgel{
   }
     
   void drawOneShape(float x, float y, float d, float r){
+    float angleKnob = mouseX;    
+    
     for(int i=0; i<d; i++){
-      float angle = r+i*360/d-90;
-      float augRadius = radius+0.0001;
+      float angle = angleKnob*0.1+(r+i*360/d-90);
+      float augRadius = 2*radius+0.0001;
       PVector start = new PVector(x+augRadius*cos(radians(angle)), y+augRadius*sin(radians(angle)));
       PVector end = new PVector(x-0.1*augRadius*cos(radians(angle+30)), y-0.1*augRadius*sin(radians(angle+30)));
       this.lines.add(new Line(start, end, lines.size()));

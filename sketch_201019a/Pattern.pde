@@ -2,36 +2,145 @@ class Pattern{
   ArrayList<Line> lines = new ArrayList<Line>();
   ArrayList<Node> intersections = new ArrayList<Node>();
   ArrayList<Triangle> triangles = new ArrayList<Triangle>();
-  ArrayList<PVector> pvs = new ArrayList<PVector>();
+  ArrayList<Shape> shapes = new ArrayList<Shape>();
   final int NB_POINTS = 105;
-  
   
   Formorgel formorgel;
   
-  float radius = 200;
+  float radius = 300;
   
   Pattern(){
     formorgel = new Formorgel(radius);
     generateLines();
     findintersections();
     generateTriangles();
+    mergeTriangles();
+    mergeShapes();
+    removeEmptyShapes();
     println("Lines         : " + lines.size());
     println("Intersections : " + intersections.size());
+    println("Shapes        : " + shapes.size());
   }
   
-  void draw(){
-    noStroke();
-    for(Node intersection : intersections){ intersection.draw(); }
-    strokeWeight(1);
-    for(Line line : lines){ line.draw(); }
-    for(Triangle triangle : triangles){ triangle.display(); }
+  void display(){
+    background(255);
+    //noStroke();
+    //for(Node intersection : intersections){ intersection.draw();}
+    //for(Triangle triangle : triangles){ triangle.display(); }
+    for(Shape shape : shapes){ shape.display(); }
+    //for(Line line : lines){ line.draw(); }
+  }
+  
+  void removeEmptyShapes(){
+    for(int i=0; i<shapes.size(); i++){
+      if(shapes.get(i).triangles.size() == 0){
+        shapes.remove(i);
+        i--;
+      }
+    }
+  }
+  
+  void mergeShapes(){
+    //Recorrem totes les formes
+    for(int i=0; i<shapes.size(); i++){
+      
+      //I les comparem amb totes les altres formes
+      for(int j=0; j<shapes.size(); j++){
+        
+        //Menys amb elles mateixes
+        if(i!=j){
+          Shape shapeA = shapes.get(i);
+          Shape shapeB = shapes.get(j);
+          
+          //Recorrem tots els triangles de la primera forma
+          for(int k=0; k<shapes.get(i).triangles.size(); k++){
+            Triangle triangleA = shapeA.triangles.get(k);
+            ArrayList<Node> nodesTriangleA = new ArrayList<Node>();
+            nodesTriangleA.add(triangleA.p1);
+            nodesTriangleA.add(triangleA.p2);
+            nodesTriangleA.add(triangleA.p3);
+            
+            //I els comparem amb tots els triangles de la segona forma
+            for(int l=0; l<shapes.get(j).triangles.size(); l++){
+              Triangle triangleB = shapeB.triangles.get(l);
+              ArrayList<Node> nodesTriangleB = new ArrayList<Node>();
+              ArrayList<Node> nodesInCommon = new ArrayList<Node>();
+              nodesTriangleB.add(triangleB.p1);
+              nodesTriangleB.add(triangleB.p2);
+              nodesTriangleB.add(triangleB.p3);
+              
+              for(Node nodeA : nodesTriangleA){
+                for(Node nodeB : nodesTriangleB){
+                  if(nodeA.pos == nodeB.pos){
+                    nodesInCommon.add(nodeA);
+                  }
+                }            
+              }
+              
+              if(nodesInCommon.size() == 2){ 
+                Node nodeA = nodesInCommon.get(0);
+                Node nodeB = nodesInCommon.get(1);
+                if(!nodeA.sharesLine(nodeB)){
+                  shapeA.c = shapeB.c;
+                  shapeA.addShape(shapeB);
+                  shapeB.removeContent();
+                }
+              }
+            }            
+          }
+        }
+      }
+    }
+  }
+  
+  void mergeTriangles(){
+    shapes.add(new Shape(triangles.get(0)));
+    triangles.remove(0);
+    for(Triangle triangleA : triangles){
+      ArrayList<Node> nodesTriangleA = new ArrayList<Node>();
+      nodesTriangleA.add(triangleA.p1);
+      nodesTriangleA.add(triangleA.p2);
+      nodesTriangleA.add(triangleA.p3);
+      
+      boolean shapeFound = false;
+      for(int i=0; i<shapes.size(); i++){
+        for(int j=0; j<shapes.get(i).triangles.size(); j++){
+          
+          Triangle triangleB = shapes.get(i).triangles.get(j);
+          
+          ArrayList<Node> nodesInCommon = new ArrayList<Node>();
+          ArrayList<Node> nodesTriangleB = new ArrayList<Node>();
+          nodesTriangleB.add(triangleB.p1);
+          nodesTriangleB.add(triangleB.p2);
+          nodesTriangleB.add(triangleB.p3);
+          
+          for(Node nodeA : nodesTriangleA){
+            for(Node nodeB : nodesTriangleB){
+              if(nodeA.pos == nodeB.pos){
+                nodesInCommon.add(nodeA);
+              }
+            }            
+          }
+          if(nodesInCommon.size() == 2){ 
+            Node nodeA = nodesInCommon.get(0);
+            Node nodeB = nodesInCommon.get(1);
+            if(!nodeA.sharesLine(nodeB)){
+              shapes.get(i).addTriangle(triangleA);
+              shapeFound = true;
+            }
+          }
+        }
+      }
+      if(!shapeFound){
+        shapes.add(new Shape(triangleA));
+      }
+    }
   }
   
   void generateLines(){
     lines = formorgel.generateLines(3);
-    
     for(int i=0; i<lines.size(); i++){
-      if(lines.get(i).isOutside(radius)){
+      if(lines.get(i).isOutside(radius/2)){
         lines.remove(i);
         i = i==0 ? 0 : i-1;
       }
@@ -39,7 +148,7 @@ class Pattern{
   }
   
   void generateTriangles(){
-    new Triangulator().triangulate(pvs, triangles);
+    new Triangulator().triangulate(intersections, triangles);
   }
     
   void findintersections(){
@@ -56,16 +165,8 @@ class Pattern{
       }
     }
 
-    //Eliminem les interseccions que estan a fora
-    for(int i = 0; i<intersections.size(); i++){
-      if(intersections.get(i).pos.x<-radius*2 || intersections.get(i).pos.x>width+radius*2 || intersections.get(i).pos.y<-radius*2 || intersections.get(i).pos.y>height+radius*2 ){
-        intersections.remove(i);
-        i--;
-      }
-    }
-    
-    Collections.sort(intersections);
     // Unim interseccions iguals.
+    
     for(int i = 0; i<intersections.size(); i++){
       for(int j = 0; j<intersections.size(); j++){
         if(i!=j && sonElMateix(intersections.get(i), intersections.get(j))){
@@ -76,9 +177,6 @@ class Pattern{
       }
     }
     
-    for(Node intersection: intersections){
-      pvs.add(intersection.pos);  
-    }
   }
   
   boolean sonElMateix(Node punt1, Node punt2){

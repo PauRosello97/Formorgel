@@ -9,9 +9,15 @@ class Node implements Comparable{
       this.lines.add(l[1]);
     }
     
-    Node(){
-      
+    Node(float x, float y) {
+      this.pos = new PVector(x, y);
     }
+    /*
+    Node(PVector pos){
+      this.pos = pos;  
+    }*/
+    
+    Node(){}
 
     void draw(){
       fill(0);
@@ -26,9 +32,38 @@ class Node implements Comparable{
       }
     }
     
+    boolean sharesLine(Node node){
+      for(Line lineA : node.lines){
+        for(Line lineB : this.lines){
+          if(lineA.id == lineB.id){
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+    
+    Line getLineInCommon(Node node){
+      for(Line lineA : this.lines){
+        for(Line lineB : node.lines){
+          if(lineA.id == lineB.id) return lineA;  
+        }        
+      }
+      return null;
+    }
+    
     int compareTo(Object o){
       PVector origin = new PVector(0,0);
         Node e = (Node)o;
         return int(origin.dist(pos)-origin.dist(e.pos));
+    }
+    
+    public String toString(){
+      String text = "[NODE] = [" + int(pos.x) + ", " + int(pos.y) + "] - LINES = [";  
+      for(Line line : lines){
+        text += line.id + " | ";  
+      }
+      text += "]";
+      return text;
     }
 }

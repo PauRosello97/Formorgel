@@ -1,34 +1,35 @@
-class Triangle
+class Triangle implements Comparable
 {
-  PVector p1, p2, p3;
-
+  Node p1, p2, p3;
   Triangle() { 
     p1 = p2 = p3 = null;
   }
 
-  Triangle(PVector p1, PVector p2, PVector p3) {
+  Triangle(Node p1, Node p2, Node p3) {
     this.p1 = p1;
     this.p2 = p2;
     this.p3 = p3;
   }
 
-  Triangle(float x1, float y1, float x2, float y2, float x3, float y3)
-  {
-    p1 = new PVector(x1, y1);
-    p2 = new PVector(x2, y2);
-    p3 = new PVector(x3, y3);
-  }
-
   PVector center() {
-    return LineIntersector.simpleIntersect(p1.x, p1.y, (p2.x + p3.x)*.5, (p2.y + p3.y)*.5, p2.x, p2.y, (p3.x + p1.x)*.5, (p3.y + p1.y)*.5);
+    return LineIntersector.simpleIntersect(p1.pos.x, p1.pos.y, (p2.pos.x + p3.pos.x)*.5, (p2.pos.y + p3.pos.y)*.5, p2.pos.x, p2.pos.y, (p3.pos.x + p1.pos.x)*.5, (p3.pos.y + p1.pos.y)*.5);
   }
   
   void display(){
-    beginShape(TRIANGLES);
-    fill(map(p1.x, 0, width, 0, 225), map(p1.y, 0, height, 0, 225), 225);
-    vertex(p1.x, p1.y);
-    vertex(p2.x, p2.y);
-    vertex(p3.x, p3.y);
+    beginShape();
+    vertex(p1.pos.x, p1.pos.y);
+    vertex(p2.pos.x, p2.pos.y);
+    vertex(p3.pos.x, p3.pos.y);
     endShape();
+  }
+  
+  public String toString(){
+    return "Triangle: [" + int(p1.pos.x) + ", " + int(p1.pos.y) + "] [" + int(p2.pos.x) + ", " + int(p2.pos.y)  + "] [" + int(p3.pos.x) + ", " + int(p3.pos.y) + "]"; 
+  }
+  
+  int compareTo(Object o){
+    Triangle t = (Triangle)o;
+    float dif = this.center().x - t.center().x;
+    return int(dif);
   }
 }
