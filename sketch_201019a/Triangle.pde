@@ -32,4 +32,18 @@ class Triangle implements Comparable
     float dif = this.center().x - t.center().x;
     return int(dif);
   }
+  
+  public float area(){
+    float x1 = p1.pos.x;
+    float y1 = p1.pos.y;
+    float x2 = p2.pos.x;
+    float y2 = p2.pos.y;
+    float x3 = p3.pos.x;
+    float y3 = p3.pos.y;
+    
+    float area = x1*y2 + x2*y3 + x3*y1 - y1*x2 - y2*x3 - y3*x1;
+    area /= 2;
+    
+    return abs(area);
+  }
 }

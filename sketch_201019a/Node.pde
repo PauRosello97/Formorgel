@@ -12,10 +12,6 @@ class Node implements Comparable{
     Node(float x, float y) {
       this.pos = new PVector(x, y);
     }
-    /*
-    Node(PVector pos){
-      this.pos = pos;  
-    }*/
     
     Node(){}
 

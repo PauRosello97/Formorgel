@@ -7,19 +7,24 @@ class Pattern{
   
   Formorgel formorgel;
   
-  float radius = 300;
+  float radius = 400;
   
-  Pattern(){
-    formorgel = new Formorgel(radius);
+  Pattern(float angleKnob){
+    formorgel = new Formorgel(radius, angleKnob);
     generateLines();
     findintersections();
     generateTriangles();
     mergeTriangles();
     mergeShapes();
     removeEmptyShapes();
-    println("Lines         : " + lines.size());
-    println("Intersections : " + intersections.size());
+    assignColors();
+
+
+    println("------------------------");
+    //println("Lines         : " + lines.size());
+    //println("Intersections : " + intersections.size());
     println("Shapes        : " + shapes.size());
+    println("------------------------");
   }
   
   void display(){
@@ -29,6 +34,18 @@ class Pattern{
     //for(Triangle triangle : triangles){ triangle.display(); }
     for(Shape shape : shapes){ shape.display(); }
     //for(Line line : lines){ line.draw(); }
+  }
+  
+  void assignColors(){
+    /*
+    ArrayList<Integer> sizes = new ArrayList<Integer>();
+    ArrayList<color> colors = new ArrayList<color>();
+    for(Shape shape : shapes){
+      int size = int(shape.area()/10);
+      if(!sizes.contains(size)) sizes.add(size);
+    }
+    println(sizes.size());
+    */
   }
   
   void removeEmptyShapes(){
@@ -140,7 +157,7 @@ class Pattern{
   void generateLines(){
     lines = formorgel.generateLines(3);
     for(int i=0; i<lines.size(); i++){
-      if(lines.get(i).isOutside(radius/2)){
+      if(lines.get(i).isOutside(radius)){
         lines.remove(i);
         i = i==0 ? 0 : i-1;
       }
@@ -167,6 +184,7 @@ class Pattern{
 
     // Unim interseccions iguals.
     
+    
     for(int i = 0; i<intersections.size(); i++){
       for(int j = 0; j<intersections.size(); j++){
         if(i!=j && sonElMateix(intersections.get(i), intersections.get(j))){
@@ -180,13 +198,8 @@ class Pattern{
   }
   
   boolean sonElMateix(Node punt1, Node punt2){
-    boolean areTheSame = true;
-    float distance = 0.01;
-    if(abs(punt1.pos.x-punt2.pos.x)>distance){
-      areTheSame=false;
-    }else if(abs(punt1.pos.y-punt2.pos.y)>distance){
-      areTheSame=false;
-    }
-    return areTheSame;
+    float distance = punt1.pos.dist(punt2.pos);
+    if(distance < 10) return true;
+    return false;
   }  
 }

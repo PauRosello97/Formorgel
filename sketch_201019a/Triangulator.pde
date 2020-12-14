@@ -134,7 +134,6 @@ class Triangulator
 
     //Include each point one at a time into the existing mesh
     ArrayList<Edge> edges = new ArrayList<Edge>();
-    int ts;
     PVector circle;
     boolean inside;
 

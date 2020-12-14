@@ -1,14 +1,15 @@
 class Formorgel{
-  float radius;
+  float radius, angleKnob;
   ArrayList<Line> lines;
   
-  Formorgel(float r){
+  Formorgel(float r, float angleKnob){
     radius = r;
+    this.angleKnob = angleKnob;
     lines = new ArrayList<Line>();
   }
   
   ArrayList<Line> generateLines(int d){
-    generateThirdLevelPack(width/2, height/2, d);
+    generateFourthLevelPack(width/2, height/2, d);
     //generateOnePack(width/2, height/2, d);
     return this.lines;
   }
@@ -77,15 +78,13 @@ class Formorgel{
     
     for(int i=0; i<rep; i++){
       float angle = i*polygonVertexAngle+90;
-      drawOneShape(x+rotationRadius*cos(radians(angle+extraR)), y+rotationRadius*sin(radians(angle+extraR)), d, angle);
+      generateOneShape(x+rotationRadius*cos(radians(angle+extraR)), y+rotationRadius*sin(radians(angle+extraR)), d, angle);
     }
   }
     
-  void drawOneShape(float x, float y, float d, float r){
-    float angleKnob = mouseX;    
-    
+  void generateOneShape(float x, float y, float d, float r){    
     for(int i=0; i<d; i++){
-      float angle = angleKnob*0.1+(r+i*360/d-90);
+      float angle = this.angleKnob+(r+i*360/d-90);
       float augRadius = 2*radius+0.0001;
       PVector start = new PVector(x+augRadius*cos(radians(angle)), y+augRadius*sin(radians(angle)));
       PVector end = new PVector(x-0.1*augRadius*cos(radians(angle+30)), y-0.1*augRadius*sin(radians(angle+30)));
