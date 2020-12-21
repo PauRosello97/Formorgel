@@ -1,16 +1,19 @@
 class Formorgel{
-  float radius, angleKnob;
+  float radius, angleKnob, lengthKnob, offsetKnob;
   ArrayList<Line> lines;
   
-  Formorgel(float r, float angleKnob){
+  Formorgel(float r, float offsetKnob, float angleKnob, float lengthKnob){
     radius = r;
-    this.angleKnob = angleKnob;
+    this.offsetKnob = offsetKnob; // From 0 to 1. To control the start radius.
+    this.angleKnob = angleKnob; // Angle of the line
+    this.lengthKnob = lengthKnob; // Length of the line as a percentage of the radius
     lines = new ArrayList<Line>();
   }
   
   ArrayList<Line> generateLines(int d){
-    generateFourthLevelPack(width/2, height/2, d);
+    //generateFourthLevelPack(width/2, height/2, d);
     //generateOnePack(width/2, height/2, d);
+    generateOneShape(width/2, height/2, d, 0);
     return this.lines;
   }
   
@@ -83,11 +86,23 @@ class Formorgel{
   }
     
   void generateOneShape(float x, float y, float d, float r){    
+    
+    ellipse(x, y, radius*2, radius*2);
     for(int i=0; i<d; i++){
-      float angle = this.angleKnob+(r+i*360/d-90);
-      float augRadius = 2*radius+0.0001;
-      PVector start = new PVector(x+augRadius*cos(radians(angle)), y+augRadius*sin(radians(angle)));
-      PVector end = new PVector(x-0.1*augRadius*cos(radians(angle+30)), y-0.1*augRadius*sin(radians(angle+30)));
+      float angle = (r+i*360/d-90);
+      
+      PVector start = new PVector(
+        x+radius*this.offsetKnob*cos(radians(angle)),
+        y+radius*this.offsetKnob*sin(radians(angle))
+      );
+      
+      float fix = 150;
+      
+      PVector end = new PVector(
+        start.x+radius*this.lengthKnob*cos(radians(fix+angle+this.angleKnob)),
+        start.y+radius*this.lengthKnob*sin(radians(fix+angle+this.angleKnob))
+      );
+      
       this.lines.add(new Line(start, end, lines.size()));
     }
   }

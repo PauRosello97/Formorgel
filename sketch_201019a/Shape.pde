@@ -18,14 +18,15 @@ class Shape{
   }
   
   public void display(){
-    //float area = this.area();
-    color col = color(this.value()%360, 100, 100);
+    float value = this.value();
+    color col = color(farborgel.generateColor(
+      0.5*value%360, // Hue
+      3*sqrt(value) // Luminance
+    ));
     fill(col);
     stroke(col);
     strokeWeight(2);
     for(Triangle triangle : triangles) triangle.display();  
-    //fill(0,0,100);
-    //text(int(this.area()), center.x, center.y);
     
   }
   
@@ -48,7 +49,7 @@ class Shape{
   
   public float value(){
     PVector size = this.size();
-    return abs(size.x-size.y/10);
+    return size.x+size.y;
   }
   
   public PVector size(){

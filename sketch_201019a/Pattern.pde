@@ -7,24 +7,18 @@ class Pattern{
   
   Formorgel formorgel;
   
-  float radius = 400;
+  float radius = 200;
   
-  Pattern(float angleKnob){
-    formorgel = new Formorgel(radius, angleKnob);
+  Pattern(){
+    
     generateLines();
     findintersections();
+    /*
     generateTriangles();
     mergeTriangles();
     mergeShapes();
     removeEmptyShapes();
-    assignColors();
-
-
-    println("------------------------");
-    //println("Lines         : " + lines.size());
-    //println("Intersections : " + intersections.size());
-    println("Shapes        : " + shapes.size());
-    println("------------------------");
+    */
   }
   
   void display(){
@@ -32,21 +26,25 @@ class Pattern{
     //noStroke();
     //for(Node intersection : intersections){ intersection.draw();}
     //for(Triangle triangle : triangles){ triangle.display(); }
-    for(Shape shape : shapes){ shape.display(); }
-    //for(Line line : lines){ line.draw(); }
+    //for(Shape shape : shapes){ shape.display(); }
+    for(Line line : lines){ line.draw(); }
   }
   
-  void assignColors(){
-    /*
-    ArrayList<Integer> sizes = new ArrayList<Integer>();
-    ArrayList<color> colors = new ArrayList<color>();
-    for(Shape shape : shapes){
-      int size = int(shape.area()/10);
-      if(!sizes.contains(size)) sizes.add(size);
+  void generateLines(){
+    float offsetKnob = 1-noise(100+millis()*0.0001);
+    float angleKnob = noise(millis()*0.0001)*120;
+    float lengthKnob = noise(10+millis()*0.0001)*2;
+    
+    formorgel = new Formorgel(radius, offsetKnob, angleKnob, lengthKnob);
+    lines = formorgel.generateLines(3);
+    for(int i=0; i<lines.size(); i++){
+      if(lines.get(i).isOutside(radius)){
+        lines.remove(i);
+        i = i==0 ? 0 : i-1;
+      }
     }
-    println(sizes.size());
-    */
   }
+  
   
   void removeEmptyShapes(){
     for(int i=0; i<shapes.size(); i++){
@@ -150,16 +148,6 @@ class Pattern{
       }
       if(!shapeFound){
         shapes.add(new Shape(triangleA));
-      }
-    }
-  }
-  
-  void generateLines(){
-    lines = formorgel.generateLines(3);
-    for(int i=0; i<lines.size(); i++){
-      if(lines.get(i).isOutside(radius)){
-        lines.remove(i);
-        i = i==0 ? 0 : i-1;
       }
     }
   }

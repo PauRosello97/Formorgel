@@ -37,7 +37,6 @@ class Farborgel{
     if (L != 0) {
         float un = 0.2009;
         float vn = 0.4610;
-        float Xn = 0.312713;
         float Yn = 0.329016;
         float u = U / (13.0 * L) + un;
         float v = V / (13.0 * L) + vn;
